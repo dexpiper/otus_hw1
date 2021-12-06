@@ -29,6 +29,8 @@ You can either rewrite config.ini file or specify other config on the start. Usa
 
 The specified config would override build-in dictionary, *config.ini* from config dir would not be loaded.
 
+Config should be stored in a configuration file that python *configparser* can parse [(more info)](https://docs.python.org/3/library/configparser.html). There should be exactly one section in file with all the vars inside. You can pick any valid section name.
+
 ### List of config vars
 
 - REPORT_SIZE:      *max URLs in report* (default: 1000)
