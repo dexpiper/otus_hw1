@@ -27,7 +27,7 @@ You can either rewrite config.ini file or specify other config on the start. Usa
 
 `$ python3 log_analyzer.py --config <path_to_config>`
 
-The specified config would override build-in dictionary, *config.ini* from config dir would not being loaded.
+The specified config would override build-in dictionary, *config.ini* from config dir would not be loaded.
 
 ### List of config vars
 
