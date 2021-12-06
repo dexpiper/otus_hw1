@@ -31,13 +31,13 @@ The specified config would override build-in dictionary, *config.ini* from confi
 
 ### List of config vars
 
-REPORT_SIZE:      *max URLs in report* (default: 1000)
-REPORT_DIR:       *default directory to store ready reports* (default: ./reports)
-REPORT_TEMPLATE:  *path to html-template for the reports* (default: ./config/report.html)
-LOG_DIR:          *path to folder with nginx logs* (default: ./log)
-LOGLEVEL:         *numeric log level: DEBUG = 10, INFO = 20* (default: 10)
-LOGFILE:          *path to save logging output into a file. Warning: if set, logging output will not propagate into stdout, only would come as file* (default: None)
-ERRORS_LIMIT:     *error limit to quit analyzing* (default: None)
+- REPORT_SIZE:      *max URLs in report* (default: 1000)
+- REPORT_DIR:       *default directory to store ready reports* (default: ./reports)
+- REPORT_TEMPLATE:  *path to html-template for the reports* (default: ./config/report.html)
+- LOG_DIR:          *path to folder with nginx logs* (default: ./log)
+- LOGLEVEL:         *numeric log level: DEBUG = 10, INFO = 20* (default: 10)
+- LOGFILE:          *path to save logging output into a file. Warning: if set, logging output will not propagate into stdout, only would come as file* (default: None)
+- ERRORS_LIMIT:     *error limit to quit analyzing* (default: None)
 
 ### Testing
 
