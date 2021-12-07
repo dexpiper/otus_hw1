@@ -1,3 +1,18 @@
+'''
+Compiled regular expression to parse log line by line.
+Supports two named groups:
+- href (the URL)
+- time (request time)
+
+Usage:
+
+match = r.match(LOG_RECORD_RE)
+if match:
+    href = match.group('href')
+    request_time = match.group('time')
+
+'''
+
 import re
 
 
@@ -18,12 +33,12 @@ LOG_RECORD_RE = re.compile(
     # request "method href proto" i.e. "GET /api/v2/banner/23815685 HTTP/1.1"
     r'"\S+ (?P<href>\S+) \S+" '
 
-    r'\d+ '      # status
-    r'\d+ '      # body_bytes_sent
-    r'"\S+" '    # http_referer
-    r'".*" '     # http_user_agent
-    r'"\S+" '    # http_x_forwarded_for
-    r'"\S+" '    # http_X_REQUEST_ID
+    r'\d+ '                # status
+    r'\d+ '                # body_bytes_sent
+    r'"\S+" '              # http_referer
+    r'".*" '               # http_user_agent
+    r'"\S+" '              # http_x_forwarded_for
+    r'"\S+" '              # http_X_REQUEST_ID
     r'"\S+" '              # http_X_RB_USER
     r'(?P<time>\d+\.\d+)'  # request_time
 )

@@ -11,6 +11,7 @@ from analyzer.utils import (get_latest_log_info, merge_configs,
 from analyzer.analyzers import get_log_records, create_report, render_template
 
 
+# default config
 config = {
     'REPORT_SIZE': 1000,
     'REPORT_DIR': './reports',
@@ -24,8 +25,9 @@ config = {
 }
 
 
-def main(config):
+def main(config: dict) -> None:
     '''
+    Main logic. Call within try block.
     '''
     # resolving an actual log
     latest_log_info = get_latest_log_info(config['LOG_DIR'])

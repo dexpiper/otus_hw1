@@ -1,22 +1,35 @@
+# Python SL
 import gzip
 import io
-import logging
-from collections import deque, namedtuple
-import statistics
-from string import Template
 import json
+import logging
+import statistics
+from collections import deque, namedtuple
+from string import Template
+from typing import Iterable
 
+# internal
 from analyzer.regex import LOG_RECORD_RE
 
 
+# Record(href: str, request_time: str)
 Record = namedtuple('Record', ['href', 'request_time'])
 
 
-def is_gzip_file(file_path):
+def is_gzip_file(file_path: str) -> bool:
+    '''
+    Return True if dealing with .gz file
+    '''
     return file_path.split('.')[-1] == 'gz'
 
 
-def get_log_records(log_path, errors_limit=None):
+def get_log_records(
+        log_path: str,
+        errors_limit: int = None) -> Iterable[Record] or None:
+    '''
+    Open file, parse it line-by-line and return a list with all parsed
+    records. Using fast deque() instead of simple list.
+    '''
     open_fn = gzip.open if is_gzip_file(log_path) else io.open
     errors = 0
     records = 0
@@ -52,16 +65,20 @@ def get_log_records(log_path, errors_limit=None):
     return result
 
 
-def reader(file):
+def reader(file: object) -> str:
     '''
-    Line-by-line generator
+    Generator function to lie-by-line reading of large file.
     '''
     line = file.readline()
     while len(line):
         yield line.decode('utf-8')
 
 
-def parse_log_record(log_line):
+def parse_log_record(log_line: str) -> Record or None:
+    '''
+    Parse given log line, get its URL and request time
+    and give away in a namedtuple Record.
+    '''
     r = LOG_RECORD_RE
     match = r.match(log_line)
     if match:
@@ -72,19 +89,24 @@ def parse_log_record(log_line):
         return
 
 
-def median(values_list):
+def median(values_list: Iterable) -> float or None:
     return None if not values_list else statistics.median(values_list)
 
 
-def mean(values_list):
+def mean(values_list: Iterable) -> float or None:
     return None if not values_list else statistics.mean(values_list)
 
 
-def maximum(values_list):
+def maximum(values_list: Iterable) -> float or None:
     return None if not values_list else max(values_list)
 
 
-def create_report(records, max_records):
+def create_report(records: Iterable,
+                  max_records: str or int) -> Iterable[dict]:
+    '''
+    Analyze parsed records and create a list of all
+    URLs with data for the report
+    '''
     logging.info('Creating report, please wait...')
     max_records = int(max_records)
     total_records = 0
@@ -140,7 +162,12 @@ def create_report(records, max_records):
     return result[:max_records]
 
 
-def render_template(report, report_file_path, template_path):
+def render_template(report: Iterable[dict],
+                    report_file_path: str,
+                    template_path: str) -> None:
+    '''
+    Render and write down ready report in html file
+    '''
     json_report = json.dumps(report)
     with open(template_path, mode='rb') as temp_file:
         contents = temp_file.read().decode('utf-8')
