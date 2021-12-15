@@ -4,11 +4,12 @@
 import argparse
 import logging
 import os
+import sys
 
 # internal modules
-from analyzer.utils import (get_latest_log_info, merge_configs,
-                            setup_logger, load_conf)
-from analyzer.analyzers import get_log_records, create_report, render_template
+from analyzer.analyzers import create_report, get_log_records, render_template
+from analyzer.utils import (get_latest_log_info, load_conf, merge_configs,
+                            setup_logger)
 
 
 # default config
@@ -19,7 +20,6 @@ config = {
     'LOG_DIR': './log',
     'LOGFILE': None,
     'LOGLEVEL': 10,
-    'DEFAULT_CONFIG_PATH': './config/config.ini',
     'ERRORS_LIMIT': None
 
 }
@@ -72,20 +72,19 @@ def main(config: dict) -> None:
             os.path.normpath(report_file_path)
         )
     )
+    return True
 
 
 if __name__ == "__main__":
 
-    # parsing arguments
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-c', '--config', help='Config file path',
-        default=config['DEFAULT_CONFIG_PATH']
+        default='./config/config.ini'
     )
     args = parser.parse_args()
 
-    # loading config
-    file_config = load_conf(args.config, default_config=config)
+    file_config = load_conf(args.config)
 
     if file_config:
         # merging default config with file config
@@ -95,6 +94,9 @@ if __name__ == "__main__":
             default_config=config,
             file_config=file_config
         )
+    else:
+        logging.error('Cannot read config file. Terminating with SystemExit')
+        sys.exit(0)
 
     setup_logger(
         config['LOGFILE'],
@@ -102,8 +104,10 @@ if __name__ == "__main__":
     logging.info('Logging and config setup OK')
 
     try:
-        main(config)
-
+        result = main(config)
     except Exception:
         logging.exception('Exception during main function: ')
         raise
+    else:
+        if result:
+            logging.info('Task accomplished successfully')

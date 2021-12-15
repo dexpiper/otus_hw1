@@ -37,10 +37,8 @@ def get_log_records(
     _hrefs = set()
     with open_fn(log_path, mode='rb') as log_file:
         try:
-            while True:
-                rec = parse_log_record(
-                    next(reader(log_file))
-                )
+            for line in log_file:
+                rec = parse_log_record(line.decode('utf-8'))
                 if rec:
                     result.append(rec)
                     records += 1
@@ -65,15 +63,6 @@ def get_log_records(
     return result
 
 
-def reader(file: object) -> str:
-    '''
-    Generator function to lie-by-line reading of large file.
-    '''
-    line = file.readline()
-    while len(line):
-        yield line.decode('utf-8')
-
-
 def parse_log_record(log_line: str) -> Record or None:
     '''
     Parse given log line, get its URL and request time
@@ -85,20 +74,6 @@ def parse_log_record(log_line: str) -> Record or None:
         href = match.group('href')
         request_time = match.group('time')
         return Record(href=href, request_time=request_time)
-    else:
-        return
-
-
-def median(values_list: Iterable) -> float or None:
-    return None if not values_list else statistics.median(values_list)
-
-
-def mean(values_list: Iterable) -> float or None:
-    return None if not values_list else statistics.mean(values_list)
-
-
-def maximum(values_list: Iterable) -> float or None:
-    return None if not values_list else max(values_list)
 
 
 def create_report(records: Iterable,
@@ -149,9 +124,15 @@ def create_report(records: Iterable,
             (dct['count'] / total_records) * 100, 5)
         dct['time_perc'] = round(
             (dct['time_sum'] / total_time) * 100, 5)
-        dct['time_avg'] = round(mean(dct['time_lst']), 5)
-        dct['time_max'] = maximum(dct['time_lst'])
-        dct['time_med'] = round(median(dct['time_lst']), 5)
+        dct['time_avg'] = round(
+            statistics.mean(dct['time_lst'] or [0]),
+            5  # rounding precision
+        )
+        dct['time_max'] = max(dct['time_lst'] or [0])
+        dct['time_med'] = round(
+            statistics.median(dct['time_lst'] or [0]),
+            5  # rounding precision
+        )
         del dct['time_lst']
         result.append(dct)
 
