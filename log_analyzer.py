@@ -72,7 +72,7 @@ def main(config: dict) -> None:
             os.path.normpath(report_file_path)
         )
     )
-    return True
+    logging.info('Task accomplished successfully')
 
 
 if __name__ == "__main__":
@@ -84,19 +84,28 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    file_config = load_conf(args.config)
+    try:
+        file_config = load_conf(args.config)
+    except KeyError:
+        logging.error('Section name should be defined in .ini config file')
+        sys.exit(1)
+    except NameError:
+        logging.error('Only .ini config files supported')
+        sys.exit(1)
+    except FileNotFoundError:
+        logging.error(f'Cannot find {args.config} config file')
+        sys.exit(1)
+    except Exception:
+        logging.error(f'Cannot read provided {args.config} config file')
+        sys.exit(1)
 
-    if file_config:
-        # merging default config with file config
-        # while file config has priority
-        logging.debug('Merging configs')
-        config = merge_configs(
-            default_config=config,
-            file_config=file_config
-        )
-    else:
-        logging.error('Cannot read config file. Terminating with SystemExit')
-        sys.exit(0)
+    # merging default config with file config
+    # while file config has priority
+    logging.debug('Merging configs')
+    config = merge_configs(
+        default_config=config,
+        file_config=file_config
+    )
 
     setup_logger(
         config['LOGFILE'],
@@ -104,10 +113,7 @@ if __name__ == "__main__":
     logging.info('Logging and config setup OK')
 
     try:
-        result = main(config)
+        main(config)
     except Exception:
         logging.exception('Exception during main function: ')
         raise
-    else:
-        if result:
-            logging.info('Task accomplished successfully')

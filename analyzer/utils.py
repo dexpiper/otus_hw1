@@ -18,22 +18,16 @@ def load_conf(conf_path: str) -> dict:
     Loading config
     '''
     if os.path.isfile(conf_path):
+        if not conf_path[-3:] == 'ini':
+            raise NameError
         parser = configparser.ConfigParser()
         parser.optionxform = str
-        try:
-            parser.read(conf_path, encoding='utf8')
-        except Exception:
-            logging.exception(f'Cannot parse config from {conf_path}')
-            return
+        parser.read(conf_path, encoding='utf8')
         if not parser.sections():
-            logging.error(
-                'Section name should be defined in .ini config file'
-            )
-            return
+            raise KeyError
         return parser[parser.sections()[0]]
     else:
-        logging.error(f'Config file with name {conf_path} has not been found')
-        return
+        raise FileNotFoundError
 
 
 def setup_logger(log_path: str,
@@ -41,9 +35,7 @@ def setup_logger(log_path: str,
     '''
     Setup logging settings
     '''
-    log_path = None if log_path in (
-            '', ' ', '   ', None, False
-        ) else log_path
+    log_path = log_path.strip() or None
     if log_path:
         log_dir = os.path.split(log_path)[0]
         if log_dir and not os.path.exists(log_dir):
@@ -93,7 +85,7 @@ def get_latest_log_info(files_dir: str) -> DateNamedFileInfo:
                 '%Y%m%d'
             )
         except ValueError:
-            logging.warning(
+            logging.info(
                 f'Could not extract datetime object from {match.group("date")}'
                 f': str {date} does not match format "%Y%m%d"'
             )
@@ -102,7 +94,6 @@ def get_latest_log_info(files_dir: str) -> DateNamedFileInfo:
         if latest_file_info and date <= latest_file_info.file_date:
             continue
 
-        # if no latest_file_info or new date is > old date
         latest_file_info = DateNamedFileInfo(
             file_path='/'.join((files_dir, filename)),
             file_date=date
