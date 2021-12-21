@@ -19,7 +19,7 @@ def load_conf(conf_path: str) -> dict:
     '''
     if os.path.isfile(conf_path):
         if not conf_path[-3:] == 'ini':
-            raise NameError
+            raise TypeError
         parser = configparser.ConfigParser()
         parser.optionxform = str
         parser.read(conf_path, encoding='utf8')

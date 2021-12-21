@@ -89,7 +89,7 @@ if __name__ == "__main__":
     except KeyError:
         logging.error('Section name should be defined in .ini config file')
         sys.exit(1)
-    except NameError:
+    except TypeError:
         logging.error('Only .ini config files supported')
         sys.exit(1)
     except FileNotFoundError:
