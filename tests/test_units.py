@@ -4,9 +4,10 @@ from datetime import datetime
 import os
 
 # internal modules
+from log_analyzer import (load_conf, merge_configs, get_latest_log_info,
+                          get_log_records, create_report, render_template,
+                          parse_log_record)
 from log_analyzer import config
-from analyzer.utils import get_latest_log_info, load_conf, merge_configs
-from analyzer.analyzers import get_log_records, create_report, render_template
 
 
 class UnitTests(unittest.TestCase):
@@ -55,6 +56,17 @@ class UnitTests(unittest.TestCase):
             latest_file.file_date,
             datetime.strptime('20170630', '%Y%m%d')
         )
+
+    def test_parse_log_record(self):
+        rec = parse_log_record(
+            '1.199.168.112 2a828197ae235b0b3cb  - [29/Jun/2017:03:50:25 +0300]'
+            ' "GET /api/1/banners/?campaign=2765576 HTTP/1.1" 200 1632 "-" '
+            '"Lynx/2.8.8dev.9 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/2.10.5" "-" '
+            '"1498697425-2760328665-4708-9752837" "-" 0.216'
+        )
+        self.assertTrue(rec)
+        self.assertEqual(rec.href, '/api/1/banners/?campaign=2765576')
+        self.assertEqual(rec.request_time, '0.216')
 
     def test_log_reader_functionality(self):
         latest_file = self.fixture_file_to_parse
